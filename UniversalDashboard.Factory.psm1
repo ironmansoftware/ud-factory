@@ -116,7 +116,15 @@ function Export-UDFramework {
     $Content | Out-File -Force -FilePath (Join-Path $StagingPath 'universal-dashboard-service.jsx')
 
     Copy-Item (Join-Path $StagingPath 'package.psm1') $OutputPath
-    New-ModuleManifest -Path (Join-Path $OutputPath "$Name.psd1") -RootModule "package.psm1" -Author $Author -ModuleVersion $Version -Description $Description -Tags @('universal-dashboard', 'ud-framework')
+    $Parameters = @{
+        Path = (Join-Path $OutputPath "$Name.psd1")
+        RootModule = "package.psm1"
+        Author = $Author
+        ModuleVersion = $Version
+        Description = $Description
+        Tags = @('universal-dashboard', 'ud-framework')
+    }
+    New-ModuleManifest @Parameters 
 
     npm run build
 
@@ -200,7 +208,9 @@ function ConvertTo-UDComponent {
         [Parameter(Mandatory, ValueFromPipeline = $true)]
         [string]$InputObject,
         [Parameter()]
-        [int]$Depth
+        [int]$Depth,
+        [Parameter()]
+        [Switch]$Dense
     )
 
     Process {
@@ -208,27 +218,60 @@ function ConvertTo-UDComponent {
         {
             [xml]$Html = $InputObject 
         } catch {
-            return Write-UDComponent -Content ('"' + $InputObject +'"') -Depth $Depth -NewLine
+            return Write-UDComponent -Content ('"' + $InputObject +'"') -Depth $Depth
         }
         
         $Element = $Html.FirstChild
 
-        $Component = Write-UDComponent -Content "New-UDComponent -Type '$($Element.Name)'" -Depth $Depth
+        $Str = "New-UDComponent -Type "
+        if ($Dense)
+        {
+            $Str = "c "
+        }
+
+        $Component = Write-UDComponent -Content "$str '$($Element.Name)'" -Depth $Depth
 
         if ($Element.Attributes.Length -gt 0)
         {
-            $Component += Write-UDComponent -Content " -Properties @{" -NewLine 
+            $str = " -Properties"
+            if ($Dense)
+            {
+                $str = " "
+            }
+
+            if ($Dense)
+            {
+                $Component += Write-UDComponent -Content "$str @{ "
+            }
+            else 
+            {
+                $Component += Write-UDComponent -Content "$str @{" -NewLine 
+            }
+
             $Element.Attributes.ForEach({
-                $Component += Write-UDComponent -Content ($_.Name + "= '$($_.'#text')'") -Depth ($Depth + 1) -NewLine
+                if ($Dense)
+                {
+                    $Component += Write-UDComponent -Content ($_.Name + "= '$($_.'#text')'; ")
+                }
+                else
+                {
+                    $Component += Write-UDComponent -Content ($_.Name + "= '$($_.'#text')'") -Depth ($Depth + 1) -NewLine
+                }
+                
             })
             $Component += Write-UDComponent -Content "}" -Depth $Depth
         }
 
         if ($Element.HasChildNodes)
         {
-            $Component += Write-UDComponent -Content " -Content {" -NewLine
+            $str = " -Content"
+            if ($Dense)
+            {
+                $str = " "
+            }
+            $Component += Write-UDComponent -Content "$str {" -NewLine
             $Element.ChildNodes.ForEach({
-                $Component += ConvertTo-UDComponent -InputObject $_.OuterXML -Depth ($Depth + 1)
+                $Component += ConvertTo-UDComponent -InputObject $_.OuterXML -Depth ($Depth + 1) -Dense:$Dense
             })
             $Component += Write-UDComponent -Content "}" -Depth $Depth
         }

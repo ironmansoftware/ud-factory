@@ -1,15 +1,17 @@
 $TAType = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
 $TAtype::Add('Endpoint', 'UniversalDashboard.Models.Endpoint')
 
+
+
 function New-UDComponent {
     param(
         [Parameter()]
         [string]$Id = [Guid]::NewGuid(),
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [string]$Type,
-        [Parameter()]
+        [Parameter(Position = 1)]
         [Hashtable]$Properties,
-        [Parameter()]
+        [Parameter(Position = 2)]
         [scriptblock]$Content
     )
 
@@ -265,3 +267,5 @@ function Sync-UDElement
         } 
     }
 }
+
+New-Alias -Name 'c' -Value 'New-UDComponent'
