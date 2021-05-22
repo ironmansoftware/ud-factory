@@ -2,6 +2,8 @@
 
 Tools for generating custom components and frameworks for PowerShell Universal.
 
+**⚠ This tool is experimental.**
+
 # Requires
 
 - [NodeJS](https://nodejs.org)
