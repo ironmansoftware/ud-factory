@@ -19,7 +19,7 @@ module.exports = (env) => {
       path: BUILD_DIR,
       filename: isDev ? 'materialui.[name].bundle.js' : '[name].[hash].bundle.js',
       sourceMapFilename: '[name].[hash].bundle.map',
-      library: 'materialui',
+      library: 'udframework',
       libraryTarget: 'var'
     },
     module: {
