@@ -17,6 +17,7 @@
     ["minify-dead-code-elimination", { "optimizeRawSize": true }],
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-syntax-dynamic-import",
-    "@babel/plugin-transform-arrow-functions"
+    "@babel/plugin-transform-arrow-functions",
+    "@babel/plugin-transform-react-jsx"
   ]
 }
