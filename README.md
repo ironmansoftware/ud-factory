@@ -8,6 +8,12 @@ Tools for generating custom components and frameworks for PowerShell Universal.
 
 - [NodeJS](https://nodejs.org)
 
+# Installation 
+
+```powershell
+Install-Module UniversalDashboard.Factory
+```
+
 # Frameworks
 
 ## Generating a Framework
